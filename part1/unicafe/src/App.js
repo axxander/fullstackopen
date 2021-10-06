@@ -12,19 +12,37 @@ const Button = ({ text, handleClick }) => {
   );
 };
 
+const StatisticLine = ({ text, value }) => {
+  if (text === 'positive') {
+    return (
+      <div>{text} {value} %</div>
+    );
+  }
+  return (
+    <div>{text} {value}</div>
+  );
+};
+
 const Statistics = ({ submissions }) => {
   const total = submissions.good + submissions.bad + submissions.neutral;
   const average = (submissions.good + (-1 * submissions.bad)) / total;
-  const positive = submissions.good / total;
+  const positivePercent = (submissions.good / total) * 100.0;
 
+  if (total === 0) {
+    return (
+      <div>
+        No feedback given
+      </div>
+    );
+  }
   return (
     <div>
-      <div>good {submissions.good}</div>
-      <div>neutral {submissions.neutral}</div>
-      <div>bad {submissions.bad}</div>
-      <div>all {total}</div>
-      <div>average {average}</div>
-      <div>positive {positive} %</div>
+      <StatisticLine text='good' value={submissions.good} />
+      <StatisticLine text='neutral' value={submissions.neutral} />
+      <StatisticLine text='bad' value={submissions.bad} />
+      <StatisticLine text='all' value={total} />
+      <StatisticLine text='average' value={average} />
+      <StatisticLine text='positive' value={positivePercent} />
     </div>
   );
 
