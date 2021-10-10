@@ -1,18 +1,7 @@
 import React, { useState } from 'react';
-
-const Number = ({ person }) => {
-    return (
-        <div>{person.name} {person.number}</div>
-    );
-};
-
-// const Search = () => {
-//     return (
-//         <div>
-//             filter shown with <input value={filter} onChange={handleFilterChange} />
-//         </div>
-//     );
-// };
+import Filter from './components/Filter';
+import Contacts from './components/Contacts';
+import NewContact from './components/NewContact';
 
 const App = () => {
     const [persons, setPersons] = useState([
@@ -45,6 +34,7 @@ const App = () => {
         };
         setPersons(persons.concat(personObject));
         setNewName('');
+        setNewNumber('');
     };
 
     const handleNumberChange = (event) => {
@@ -57,23 +47,14 @@ const App = () => {
     };
 
     // For handling filter by person.name
-    const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filter) === true);
+    const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()) === true);
 
     return (
         <div>
             <h2>Phonebook</h2>
-            filter shown with <input value={filter} onChange={handleFilterChange} />
-            <form onSubmit={addNewPerson}>
-                <div>
-                    name: <input value={newName} onChange={handleNameChange} />
-                </div>
-                <div>number: <input value={newNumber} onChange={handleNumberChange} /></div>
-                <div>
-                    <button type="submit">add</button>
-                </div>
-            </form>
-            <h2>Numbers</h2>
-            {filteredPersons.map(person => <Number key={person.id} person={person} />)}
+            <Filter value={filter} onChange={handleFilterChange} />
+            <NewContact addNewPerson={addNewPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
+            <Contacts persons={filteredPersons} />
         </div>
     );
 };
