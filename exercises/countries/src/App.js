@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import Filter from './components/Filter';
 import Countries from './components/Countries';
+import CountryInformation from './components/CountryInformation';
 
 
 const App = () => {
@@ -14,7 +15,17 @@ const App = () => {
     axios
       .get("https://restcountries.com/v3/all")
       .then(response => {
-        return response.data.map(country => ({ name: country.name.common, id: country.ccn3 }));
+        return response.data.map(country => {
+          const countryObject = {
+            name: country.name.common,
+            id: country.ccn3,
+            population: country.population,
+            capital: country.capital,
+            flags: country.flags,
+            languages: country.languages
+          };
+          return countryObject;
+        });
       })
       .then(countries => {
         setCountries(countries);
@@ -32,7 +43,8 @@ const App = () => {
   return (
     <div>
       <Filter value={filter} onChange={handleFilterChange} />
-      <Countries countries={filteredCountries} />
+      {filteredCountries.length > 1 && filteredCountries.length !== 0 && <Countries countries={filteredCountries} />}
+      {filteredCountries.length === 1 && <CountryInformation country={filteredCountries[0]} />}
     </div>
   );
 };
