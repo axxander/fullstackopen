@@ -4,6 +4,7 @@ import axios from 'axios';
 import Filter from './components/Filter';
 import Countries from './components/Countries';
 import CountryInformation from './components/CountryInformation';
+import Weather from './components/Weather';
 
 
 const App = () => {
@@ -45,6 +46,7 @@ const App = () => {
       <Filter value={filter} onChange={handleFilterChange} />
       {filteredCountries.length > 1 && filteredCountries.length !== 0 && <Countries countries={filteredCountries} />}
       {filteredCountries.length === 1 && <CountryInformation country={filteredCountries[0]} />}
+      {filteredCountries.length === 1 && <Weather country={filteredCountries[0]} />}
     </div>
   );
 };
