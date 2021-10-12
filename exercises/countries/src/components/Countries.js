@@ -1,10 +1,22 @@
-const Country = ({ name }) => {
+import { useState } from 'react';
+import CountryInformation from './CountryInformation';
+
+const Country = ({ country }) => {
+
+    const [show, setShow] = useState(false);
+
+    const handleToggle = () => setShow(!show);
+
     return (
-        <div>{name}</div>
+        <div>
+            {country.name} <button onClick={handleToggle}>{show ? 'hide' : 'show'}</button>
+            {show && <CountryInformation country={country} />}
+        </div>
     );
 };
 
 const Countries = ({ countries }) => {
+
     if (countries.length > 10) {
         return (
             <div>Too many matches, specify another filter</div>
@@ -12,7 +24,7 @@ const Countries = ({ countries }) => {
     }
     return (
         <div>
-            {countries.map(country => <Country key={country.id} name={country.name} />)}
+            {countries.map(country => <Country key={country.id} country={country} />)}
         </div>
     );
 };
