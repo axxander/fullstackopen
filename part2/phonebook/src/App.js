@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Filter from './components/Filter';
-import Contacts from './components/Contacts';
-import NewContact from './components/NewContact';
+import Persons from './components/Persons';
+import NewPerson from './components/NewPerson';
 import personService from './services/person';
 
 const App = () => {
@@ -55,6 +55,15 @@ const App = () => {
             });
     };
 
+    // delete person
+    const deletePerson = (id) => {
+        personService
+            .del(id)
+            .then(response => {
+                setPersons(persons.filter(person => person.id !== id));
+            });
+    };
+
     const handleNumberChange = (event) => {
         setNewNumber(event.target.value);
     };
@@ -71,8 +80,8 @@ const App = () => {
         <div>
             <h2>Phonebook</h2>
             <Filter value={filter} onChange={handleFilterChange} />
-            <NewContact addNewPerson={addNewPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
-            <Contacts persons={filteredPersons} />
+            <NewPerson addNewPerson={addNewPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
+            <Persons persons={filteredPersons} deletePersonHandler={deletePerson} />
         </div>
     );
 };
