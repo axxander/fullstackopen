@@ -1,4 +1,4 @@
-const NewContact = (props) => {
+const NewPerson = (props) => {
     return (
         <form onSubmit={props.addNewPerson}>
             <div>
@@ -12,4 +12,4 @@ const NewContact = (props) => {
     );
 };
 
-export default NewContact;
+export default NewPerson;

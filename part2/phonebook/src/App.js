@@ -29,24 +29,38 @@ const App = () => {
     const addNewPerson = (event) => {
         event.preventDefault();
 
-        // check if entry already exists
-        if (persons.find(person => person.name === newName) !== undefined) {
-            alert(`${newName} is already added to the phonebook`);
-            return;
-        }
-
-        // create new person
-        const personObject = {
+        const newPersonObject = {
             name: newName,
-            number: newNumber,
-            id: persons.length + 1,
+            number: newNumber
         };
 
-        // post new person to backend
+        const existingPerson = persons.find(person => person.name === newName);
+        console.log(existingPerson);
+
+        if (existingPerson !== undefined) {
+            if (window.confirm(`${existingPerson.name} already exists. Would you like to replace them?`)) {
+                // delete user
+                personService
+                    .del(existingPerson.id)
+                    .then(() => {
+                        console.log('deleted person from db');
+                        setPersons(currentPersons => currentPersons.filter(person => person.id !== existingPerson.id));
+                        // setPersons(persons.filter(person => person.id !== existingPerson.id)); // why is this not working?!
+                        console.log('should have set state of persons array');
+                    })
+                    .catch(err => {
+                        alert(`${err}`);
+                    });
+            } else {
+                return;
+            }
+        }
+        // create new user
         personService
-            .create(personObject)
+            .create(newPersonObject)
             .then(returnedPerson => {
-                setPersons(persons.concat(returnedPerson));
+                setPersons(currentPersons => currentPersons.concat(returnedPerson));
+                // setPersons(persons.concat(returnedPerson));
                 setNewName('');
                 setNewNumber('');
             })
@@ -61,6 +75,9 @@ const App = () => {
             .del(id)
             .then(response => {
                 setPersons(persons.filter(person => person.id !== id));
+            })
+            .catch(err => {
+                alert(`${err}`);
             });
     };
 
