@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Filter from './components/Filter';
 import Persons from './components/Persons';
+import Notification from './components/Notification';
 import NewPerson from './components/NewPerson';
 import personService from './services/person';
 
@@ -9,6 +10,7 @@ const App = () => {
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
     const [filter, setFilter] = useState('');
+    const [notification, setNotification] = useState(null);
 
     // get notes from server
     useEffect(() => {
@@ -35,7 +37,6 @@ const App = () => {
         };
 
         const existingPerson = persons.find(person => person.name === newName);
-        console.log(existingPerson);
 
         if (existingPerson !== undefined) {
             if (window.confirm(`${existingPerson.name} already exists. Would you like to replace them?`)) {
@@ -60,9 +61,12 @@ const App = () => {
             .create(newPersonObject)
             .then(returnedPerson => {
                 setPersons(currentPersons => currentPersons.concat(returnedPerson));
-                // setPersons(persons.concat(returnedPerson));
                 setNewName('');
                 setNewNumber('');
+                setNotification(`Added ${newName}`);
+                setTimeout(() => {
+                    setNotification('');
+                }, 3000);
             })
             .catch(err => {
                 console.log(err);
@@ -74,10 +78,14 @@ const App = () => {
         personService
             .del(id)
             .then(response => {
-                setPersons(persons.filter(person => person.id !== id));
+                setPersons(currentPersons => currentPersons.filter(person => person.id !== id));
             })
             .catch(err => {
-                alert(`${err}`);
+                setPersons(currentPersons => currentPersons.filter(person => person.id !== id));
+                setNotification(`already deleted`);
+                setTimeout(() => {
+                    setNotification('');
+                }, 3000);
             });
     };
 
@@ -96,6 +104,7 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={notification} />
             <Filter value={filter} onChange={handleFilterChange} />
             <NewPerson addNewPerson={addNewPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
             <Persons persons={filteredPersons} deletePersonHandler={deletePerson} />
