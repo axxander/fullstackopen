@@ -1,10 +1,17 @@
+const cors = require('cors');
 const express = require('express');
+const morgan = require('morgan');
+
 const app = express();
 
 const generateId = require('./utils/notes.utils');
 
+// middleware
+app.use(cors());
+app.use(morgan('tiny'));
 app.use(express.json());
 
+// mock db for notes
 let notes = [
     {
         id: 1,
@@ -75,7 +82,7 @@ app.delete('/api/notes/:id', (request, response) => {
     response.status(204).end();
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
