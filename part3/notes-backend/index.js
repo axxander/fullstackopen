@@ -8,7 +8,7 @@ const generateId = require('./utils/notes.utils');
 
 // middleware
 app.use(cors());
-app.use(morgan('tiny'));
+// app.use(morgan('tiny'));
 app.use(express.json());
 
 // mock db for notes
