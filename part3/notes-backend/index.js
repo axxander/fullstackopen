@@ -1,6 +1,6 @@
 const cors = require('cors');
 const express = require('express');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 
 const app = express();
 
