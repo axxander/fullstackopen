@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build:ui": "rm -rf build && cd ../../part2/notes/ && npm run build --prod && cp -r build ../../part3/notes-backend/",
-    "deploy": "cd ../.. && git subtree push --prefix part3/notes-backend/ backend-heroku main",
+    "build:ui": "rm -rf build && echo 'logs: deleted build' && cd ../../part2/notes/ && npm run build --prod && echo 'logs: rebuilt react app' && cp -r build ../../part3/notes-backend/",
+    "deploy": "cd ../.. && git subtree push --prefix part3/notes-backend/ backend-heroku main && echo 'logs: pushed new version to heroku'",
     "deploy:full": "npm run build:ui && git add build && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail"
   },
