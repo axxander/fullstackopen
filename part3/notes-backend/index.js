@@ -9,14 +9,14 @@ const generateId = require('./utils/notes.utils');
 // middleware
 app.use(express.static('build')); // show react app
 app.use(cors());
-// app.use(morgan('tiny'));
+// app.use(morgan('dev'));
 app.use(express.json());
 
 // mock db for notes
 let notes = [
     {
         id: 1,
-        content: "HTML is easy",
+        content: "Megan is da best",
         date: "2019-05-30T17:30:31.098Z",
         important: true
     },
