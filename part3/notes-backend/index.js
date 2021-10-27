@@ -7,6 +7,7 @@ const app = express();
 const generateId = require('./utils/notes.utils');
 
 // middleware
+app.use(express.static('build')); // show react app
 app.use(cors());
 // app.use(morgan('tiny'));
 app.use(express.json());
