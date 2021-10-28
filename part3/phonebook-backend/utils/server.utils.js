@@ -8,6 +8,7 @@ const server = () => {
     const app = express();
 
     // middleware
+    app.use(express.static('build')); // connect frontend
     app.use(cors());
     app.use(express.json());
 
