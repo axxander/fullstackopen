@@ -10,7 +10,11 @@ node_modules
 /coverage
 
 # production
+/build
+build
 
+# testing...
+!part3/notes-backend/build
 
 # misc
 .env.development.local
