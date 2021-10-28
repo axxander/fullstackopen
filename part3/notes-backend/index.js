@@ -16,7 +16,7 @@ app.use(express.json());
 let notes = [
     {
         id: 1,
-        content: "Megan is da best",
+        content: "HTML is easy",
         date: "2019-05-30T17:30:31.098Z",
         important: true
     },
