@@ -13,8 +13,9 @@ node_modules
 /build
 build
 
-# testing...
+# negation pattern for apps
 !part3/notes-backend/build
+!part3/phonebook-backedn/build
 
 # misc
 .env.development.local
