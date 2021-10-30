@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 
+// connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+    .then(con => {
+        console.log('connected to MongoDB');
+    })
+    .catch(err => {
+        console.log(`error connecting to MongoDB: ${err.message}`);
+    });
+
+// Note Schema
 const noteSchema = new mongoose.Schema({
     content: String,
     date: Date,
@@ -15,6 +25,8 @@ noteSchema.set('toJSON', {
     }
 });
 
+// Note Model
 const Note = mongoose.model('Note', noteSchema);
+
 
 module.exports = Note;
