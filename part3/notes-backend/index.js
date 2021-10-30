@@ -34,15 +34,15 @@ let notes = [
     }
 ];
 
-app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>');
+app.get('/', (req, res) => {
+    res.send('<h1>Hello World!</h1>');
 });
 
-app.get('/api/notes', (request, response) => {
-    response.json(notes);
+app.get('/api/notes', (req, res) => {
+    res.json(notes);
 });
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (req, res) => {
     const body = request.body;
 
     // check note content not empty
@@ -63,24 +63,24 @@ app.post('/api/notes', (request, response) => {
     // update notes
     notes = notes.concat(note);
 
-    response.json(note);
+    res.json(note);
 });
 
-app.get('/api/notes/:id', (request, response) => {
-    const id = Number(request.params.id);
+app.get('/api/notes/:id', (req, res) => {
+    const id = Number(req.params.id);
     const note = notes.find(note => note.id === id);
     if (!note) {
-        return response.status(404).end();
+        return res.status(404).end();
     }
-    return response.json(note);
+    return res.json(note);
 });
 
 
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/notes/:id', (req, res) => {
     const id = Number(request.params.id);
     notes = notes.filter(note => note.id !== id);
     // delete idempotent: returns same response regardless
-    response.status(204).end();
+    res.status(204).end();
 });
 
 
