@@ -1,10 +1,12 @@
 const cors = require('cors');
 const express = require('express');
+const mongoose = require('mongoose');
 // const morgan = require('morgan');
 
-const app = express();
-
+const Note = require('./models/note.model');
 const generateId = require('./utils/notes.utils');
+
+const app = express();
 
 // middleware
 app.use(express.static('build')); // show react app
@@ -12,34 +14,21 @@ app.use(cors());
 // app.use(morgan('dev'));
 app.use(express.json());
 
-// mock db for notes
-let notes = [
-    {
-        id: 1,
-        content: "HTML is easy",
-        date: "2019-05-30T17:30:31.098Z",
-        important: true
-    },
-    {
-        id: 2,
-        content: "Browser can execute only Javascript",
-        date: "2019-05-30T18:39:34.091Z",
-        important: false
-    },
-    {
-        id: 3,
-        content: "GET and POST are the most important methods of HTTP protocol",
-        date: "2019-05-30T19:20:14.298Z",
-        important: true
-    }
-];
 
+// Connect to database
+const uri = `mongodb+srv://fullstack:${process.env.MONGO_PASSWORD}@cluster0.wveyy.mongodb.net/note-app?retryWrites=true&w=majority`;
+mongoose.connect(uri);
+
+
+// ROUTES
 app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>');
 });
 
 app.get('/api/notes', (req, res) => {
-    res.json(notes);
+    Note.find({}).then(notes => {
+        res.json(notes);
+    });
 });
 
 app.post('/api/notes', (req, res) => {
@@ -86,5 +75,5 @@ app.delete('/api/notes/:id', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server live at http://localhost:${PORT}`);
 });
