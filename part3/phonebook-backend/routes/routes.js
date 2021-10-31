@@ -1,21 +1,28 @@
 const express = require('express');
 const router = express.Router();
 
-const { persons, personsRoutes } = require('./persons.routes');
+const Person = require('../models/person.model');
+const personRoutes = require('./person.routes');
+
 
 router.get('/health', (req, res) => {
     return res.sendStatus(200);
 });
 
 router.get('/info', (req, res) => {
-    const info = {
-        numberPersons: persons.length,
-        datetimeOfRequest: new Date().toString()
-    };
-    return res.render('info', { info });
+    Person
+        .count({})
+        .then(numberPersons => {
+            const info = {
+                numberPersons,
+                datetimeOfRequest: new Date().toString()
+            };
+            return res.render('info', { info });
+        });
 });
 
-// Persons routes
-router.use('/persons', personsRoutes);
+// Person routes
+router.use('/persons', personRoutes);
+
 
 module.exports = router;
