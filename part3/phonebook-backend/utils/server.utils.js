@@ -1,7 +1,8 @@
 const cors = require('cors');
 const express = require('express');
-// const morgan = require('morgan');
+const morgan = require('morgan');
 
+const errorHandler = require('../middleware/errors.middleware');
 const routes = require('../routes/routes');
 
 const server = () => {
@@ -13,8 +14,8 @@ const server = () => {
     app.use(express.json());
 
     // logging
-    // morgan.token('body', (req, res) => JSON.stringify(req.body));
-    // app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+    morgan.token('body', (req, res) => JSON.stringify(req.body));
+    app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 
     // view engine
     app.set("view engine", "ejs");
@@ -28,16 +29,7 @@ const server = () => {
     });
 
     // Error handler
-    app.use((err, req, res, next) => {
-        const status = err.status || 500;
-        const msg = err.msg || "something went wrong";
-        return res.status(status).json({
-            error: {
-                msg,
-                status
-            }
-        });
-    });
+    app.use(errorHandler);
 
     return app;
 };
