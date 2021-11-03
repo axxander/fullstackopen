@@ -31,53 +31,30 @@ const App = () => {
     const addNewPerson = (event) => {
         event.preventDefault();
 
-        const existingPerson = persons.find(p => p.name === newName);
-        if (existingPerson) {
-            // Update existing person's number
-            const updatedPerson = {
-                name: existingPerson.name,
-                number: newNumber,
-            };
-            personService
-                .update(existingPerson.id, updatedPerson)
-                .then((person) => {
-                    // Update persons without changing order
-                    setPersons(currentPersons => {
-                        return currentPersons.map(p => p.id === existingPerson.id ? person : p);
-                    });
-                    setNewName('');
-                    setNewNumber('');
-                    setNotification(`Updated ${person.name}'s number`);
-                    setTimeout(() => {
-                        setNotification(null);
-                    }, 3000);
-                })
-                .catch(err => {
-                    console.log(err);
-                });
+        // Create new person
+        const newPerson = {
+            name: newName,
+            number: newNumber,
+        };
 
-        } else {
-            // Create new person
-            const newPerson = {
-                name: newName,
-                number: newNumber,
-            };
-
-            personService
-                .create(newPerson)
-                .then(person => {
-                    setPersons(currentPersons => currentPersons.concat(person));
-                    setNewName('');
-                    setNewNumber('');
-                    setNotification(`Added ${person.name} to phonebook`);
-                    setTimeout(() => {
-                        setNotification(null);
-                    }, 3000);
-                })
-                .catch(err => {
-                    console.log(err);
-                });
-        }
+        personService
+            .create(newPerson)
+            .then(person => {
+                setPersons(currentPersons => currentPersons.concat(person));
+                setNewName('');
+                setNewNumber('');
+                setNotification(`Added ${person.name} to phonebook`);
+                setTimeout(() => {
+                    setNotification(null);
+                }, 3000);
+            })
+            .catch(err => {
+                const body = err.response.data;
+                setNotification(`${body.error.msg}`);
+                setTimeout(() => {
+                    setNotification(null);
+                }, 3000);
+            });
     };
 
     // delete person
