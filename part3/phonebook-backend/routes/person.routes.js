@@ -35,8 +35,8 @@ router.post('', (req, res, next) => {
             return res.status(201).json(savedPerson);
         })
         .catch(err => {
-            // assume server error
-            return next(new InternalError());
+            // assume validation error
+            return next(new BadRequestError(err.message));
         });
 });
 
