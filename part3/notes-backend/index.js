@@ -1,6 +1,6 @@
 const cors = require('cors');
 const express = require('express');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 
 const Note = require('./models/note.model');
 const { BadRequestError, InternalError, NotFoundError } = require('./utils/errors.utils');
@@ -10,7 +10,7 @@ const app = express();
 // middleware
 app.use(express.static('build')); // show react app
 app.use(cors());
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(express.json());
 
 
