@@ -15,7 +15,7 @@ build
 
 # negation pattern for apps
 !part3/notes-backend/build
-!part3/phonebook-backedn/build
+!part3/phonebook-backend/build
 
 # misc
 .env.development.local
