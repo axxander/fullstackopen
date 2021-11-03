@@ -7,8 +7,8 @@
     "start": "node -r dotenv/config index.js",
     "dev": "nodemon -r dotenv/config index.js",
     "build:ui": "rm -rf build && cd ../../part2/notes/ && npm run build --prod && cp -r build ../../part3/notes-backend/",
-    "update:server": "git add . && git commit -m 'updated server' && npm run deploy",
     "deploy": "cd ../.. && git subtree push --prefix part3/notes-backend/ backend-heroku main",
+    "deploy:server": "git add . && git commit -m 'updated server' && npm run deploy",
     "deploy:full": "npm run build:ui && git add build/ && git commit -m 'updated frontend' && npm run deploy",
     "logs:prod": "heroku logs --tail"
   },
