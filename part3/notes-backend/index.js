@@ -50,8 +50,8 @@ app.post('/api/notes', (req, res, next) => {
             res.status(201).json(savedNote);
         })
         .catch(err => {
-            // assume internal error for now
-            return next(new InternalError());
+            // assume bad request (failed validation)
+            return next(new BadRequestError(err.message));
         });
 });
 
@@ -83,7 +83,7 @@ app.put('/api/notes/:id', (req, res, next) => {
     Note
         .findByIdAndUpdate(id, note, { new: true }) // option passes updated document to event handler
         .then(updatedNote => {
-            res.json(updatedNote);
+            return res.json(updatedNote);
         })
         .catch(err => {
             // assume bad request not internal error for now
