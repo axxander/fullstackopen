@@ -31,46 +31,53 @@ const App = () => {
     const addNewPerson = (event) => {
         event.preventDefault();
 
-        const newPersonObject = {
-            name: newName,
-            number: newNumber
-        };
-
-        const existingPerson = persons.find(person => person.name === newName);
-
-        if (existingPerson !== undefined) {
-            if (window.confirm(`${existingPerson.name} already exists. Would you like to replace them?`)) {
-                // delete user
-                personService
-                    .del(existingPerson.id)
-                    .then(() => {
-                        console.log('deleted person from db');
-                        setPersons(currentPersons => currentPersons.filter(person => person.id !== existingPerson.id));
-                        // setPersons(persons.filter(person => person.id !== existingPerson.id)); // why is this not working?!
-                        console.log('should have set state of persons array');
-                    })
-                    .catch(err => {
-                        alert(`${err}`);
+        const existingPerson = persons.find(p => p.name === newName);
+        if (existingPerson) {
+            // Update existing person's number
+            const updatedPerson = {
+                name: existingPerson.name,
+                number: newNumber,
+            };
+            personService
+                .update(existingPerson.id, updatedPerson)
+                .then((person) => {
+                    // Update persons without changing order
+                    setPersons(currentPersons => {
+                        return currentPersons.map(p => p.id === existingPerson.id ? person : p);
                     });
-            } else {
-                return;
-            }
+                    setNewName('');
+                    setNewNumber('');
+                    setNotification(`Updated ${person.name}'s number`);
+                    setTimeout(() => {
+                        setNotification(null);
+                    }, 3000);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+
+        } else {
+            // Create new person
+            const newPerson = {
+                name: newName,
+                number: newNumber,
+            };
+
+            personService
+                .create(newPerson)
+                .then(person => {
+                    setPersons(currentPersons => currentPersons.concat(person));
+                    setNewName('');
+                    setNewNumber('');
+                    setNotification(`Added ${person.name} to phonebook`);
+                    setTimeout(() => {
+                        setNotification(null);
+                    }, 3000);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         }
-        // create new user
-        personService
-            .create(newPersonObject)
-            .then(returnedPerson => {
-                setPersons(currentPersons => currentPersons.concat(returnedPerson));
-                setNewName('');
-                setNewNumber('');
-                setNotification(`Added ${newName}`);
-                setTimeout(() => {
-                    setNotification('');
-                }, 3000);
-            })
-            .catch(err => {
-                console.log(err);
-            });
     };
 
     // delete person
