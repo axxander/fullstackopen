@@ -3,13 +3,14 @@ const router = express.Router();
 
 const Person = require('../models/person.model');
 const personRoutes = require('./person.routes');
+const { InternalError } = require('../utils/errors.utils');
 
 
 router.get('/health', (req, res) => {
     return res.sendStatus(200);
 });
 
-router.get('/info', (req, res) => {
+router.get('/info', (req, res, next) => {
     Person
         .count({})
         .then(numberPersons => {
@@ -18,6 +19,10 @@ router.get('/info', (req, res) => {
                 datetimeOfRequest: new Date().toString()
             };
             return res.render('info', { info });
+        })
+        .catch(err => {
+            // assume server error
+            next(new InternalError());
         });
 });
 

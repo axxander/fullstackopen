@@ -6,11 +6,15 @@ const { BadRequestError, InternalError, NotFoundError } = require('../utils/erro
 const router = express.Router();
 
 
-router.get('', (req, res) => {
+router.get('', (req, res, next) => {
     Person
         .find({})
         .then(persons => {
-            res.json(persons);
+            return res.json(persons);
+        })
+        .catch(err => {
+            // assume server error
+            return next(new InternalError());
         });
 });
 
@@ -28,7 +32,11 @@ router.post('', (req, res, next) => {
     person
         .save()
         .then(savedPerson => {
-            res.status(201).json(savedPerson);
+            return res.status(201).json(savedPerson);
+        })
+        .catch(err => {
+            // assume server error
+            return next(new InternalError());
         });
 });
 
@@ -45,7 +53,26 @@ router.get('/:id', (req, res, next) => {
         })
         .catch(err => {
             console.log(err);
-            // handle error: badly formatted id provided
+            // assume badly formatted id provided
+            return next(new BadRequestError('malformatted id'));
+        });
+});
+
+router.put('/:id', (req, res, next) => {
+    const body = req.body;
+    const person = {
+        name: body.name,
+        number: body.number,
+    };
+
+    const id = req.params.id;
+    Person
+        .findByIdAndUpdate(id, person, { new: true })
+        .then(updatedPerson => {
+            return res.json(updatedPerson);
+        })
+        .catch(err => {
+            // assume malformatted id
             return next(new BadRequestError('malformatted id'));
         });
 });
