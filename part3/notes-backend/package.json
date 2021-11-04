@@ -10,7 +10,8 @@
     "deploy": "cd ../.. && git subtree push --prefix part3/notes-backend/ backend-heroku main",
     "update:server": "git add . && git commit -m 'updated server' && npm run deploy",
     "deploy:full": "npm run build:ui && git add build/ && git commit -m 'updated frontend' && npm run deploy",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "mongoose": "^6.0.12"
   },
   "devDependencies": {
+    "eslint": "^8.1.0",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.14"
   }
