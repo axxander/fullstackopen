@@ -1,14 +1,14 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-const Person = require('../models/person.model');
-const personRoutes = require('./person.routes');
-const { InternalError } = require('../utils/errors.utils');
+const Person = require('../models/person.model')
+const personRoutes = require('./person.routes')
+const { InternalError } = require('../utils/errors.utils')
 
 
 router.get('/health', (req, res) => {
-    return res.sendStatus(200);
-});
+    return res.sendStatus(200)
+})
 
 router.get('/info', (req, res, next) => {
     Person
@@ -17,17 +17,17 @@ router.get('/info', (req, res, next) => {
             const info = {
                 numberPersons,
                 datetimeOfRequest: new Date().toString()
-            };
-            return res.render('info', { info });
+            }
+            return res.render('info', { info })
         })
-        .catch(err => {
+        .catch(() => {
             // assume server error
-            next(new InternalError());
-        });
-});
+            next(new InternalError())
+        })
+})
 
 // Person routes
-router.use('/persons', personRoutes);
+router.use('/persons', personRoutes)
 
 
-module.exports = router;
+module.exports = router
