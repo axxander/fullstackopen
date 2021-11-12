@@ -4,18 +4,16 @@ const Note = require('../models/note.model')
 const { BadRequestError, InternalError, NotFoundError } = require('../utils/errors.utils')
 
 
-router.get('', (req, res, next) => {
-    Note
-        .find({})
-        .then(notes => {
-            return res.json(notes)
-        })
-        .catch(() => {
-            return next(new InternalError())
-        })
+router.get('', async (req, res, next) => {
+    try {
+        const notes = await Note.find({})
+        return res.json(notes)
+    } catch {
+        return next(new InternalError())
+    }
 })
 
-router.post('', (req, res, next) => {
+router.post('', async (req, res, next) => {
     const body = req.body
 
     // check note content not empty
@@ -29,36 +27,27 @@ router.post('', (req, res, next) => {
         date: new Date(),
     })
 
-    note
-        .save()
-        .then(savedNote => {
-            return res.status(201).json(savedNote)
-        })
-        .catch(err => {
-            console.log(err)
-            // assume bad request (failed validation)
-            return next(new BadRequestError(err.message))
-        })
+    try {
+        const savedNote = await note.save()
+        return res.status(201).json(savedNote)
+    } catch (e) {
+        console.log(e)
+        return next(new BadRequestError(e.message))
+    }
 })
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
     const id = req.params.id
-    Note
-        .findById(id)
-        .then(note => {
-            if (note) {
-                return res.json(note)
-            } else {
-                return next(new NotFoundError())
-            }
-        })
-        .catch(() => {
-            // assume bad request not internal error for now
-            return next(new BadRequestError('malformatted id'))
-        })
+    try {
+        const note = await Note.findById(id)
+        return note ? res.json(note) : next(new NotFoundError())
+    } catch {
+        // assume bad request not internal error for now
+        return next(new BadRequestError('malformatted id'))
+    }
 })
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     const body = req.body
     const note = {
         content: body.content,
@@ -66,28 +55,25 @@ router.put('/:id', (req, res, next) => {
     }
 
     const id = req.params.id
-    Note
-        .findByIdAndUpdate(id, note, { new: true }) // option passes updated document to event handler
-        .then(updatedNote => {
-            return res.json(updatedNote)
-        })
-        .catch(() => {
-            // assume bad request not internal error for now
-            return next(new BadRequestError('malformatted id'))
-        })
+    try {
+        // new: true option: passes updated document to event handler not original
+        const updatedNote = await Note.findByIdAndUpdate(id, note, { new: true })
+        return res.json(updatedNote)
+    } catch {
+        // assume bad request not internal error
+        return next(new BadRequestError('malformatted id'))
+    }
 })
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     const id = req.params.id
-    Note
-        .findByIdAndRemove(id)
-        .then(() => {
-            return res.sendStatus(204)
-        })
-        .catch(() => {
-            // assume bad request not internal error for now
-            return next(new BadRequestError('malformatted id'))
-        })
+    try {
+        await Note.findByIdAndRemove(id)
+        return res.sendStatus(204)
+    } catch {
+        // assume bad request not internal error for now
+        return next(new BadRequestError('malformatted id'))
+    }
 })
 
 
