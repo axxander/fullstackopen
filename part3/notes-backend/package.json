@@ -12,7 +12,8 @@
     "deploy:full": "npm run build:ui && git add build/ && git commit -m 'updated frontend' && npm run deploy",
     "logs:prod": "heroku logs --tail",
     "lint": "eslint .",
-    "test": "cross-env NODE_ENV=test jest --setupFiles dotenv/config --detectOpenHandles --verbose --runInBand"
+    "test": "cross-env NODE_ENV=test jest --setupFiles dotenv/config --detectOpenHandles --verbose --runInBand",
+    "test:dev": "cross-env NODE_ENV=test jest --setupFiles dotenv/config --detectOpenHandles --verbose --runInBand --watchAll"
   },
   "keywords": [],
   "author": "",
