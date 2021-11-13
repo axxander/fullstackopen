@@ -1,12 +1,15 @@
 const cors = require('cors')
 const express = require('express')
 
+const connect = require('../db/connect.db')
 const errorHandler = require('../middleware/errors.middleware')
 const { NotFoundError } = require('../utils/errors.utils')
 const requestLogger = require('../middleware/requestLogger.middleware')
 const apiRoutes = require('../routes/index')
 
 const server = () => {
+    connect()
+
     const app = express()
 
     // middleware
