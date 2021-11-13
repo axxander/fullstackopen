@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 
-const { initialNotes, notesInDb } = require('./testHelpers')
+const { initialNotes, nonExistingId, notesInDb } = require('./testHelpers')
 const Note = require('../models/note.model')
 const server = require('../utils/server.utils')
 
@@ -73,6 +73,109 @@ describe('add new note', () => {
 
         const notesAfter = await notesInDb()
         expect(notesAfter).toHaveLength(initialNotes.length)
+    })
+})
+
+describe('get a note', () => {
+    test('with a valid id associated to an existing note', async () => {
+        const notesStart = await notesInDb()
+        const noteToView = notesStart[0]
+
+        const note = await api
+            .get(`/api/notes/${noteToView.id}`)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        const processedNoteToView = JSON.parse(JSON.stringify(noteToView))
+        expect(note.body).toEqual(processedNoteToView)
+    })
+
+    test('with a valid id not associated with an existing note', async () => {
+        const id = await nonExistingId()
+        await api
+            .get(`/api/notes/${id}`)
+            .expect(404)
+    })
+
+    test('with an invalid id', async () => {
+        const id = 'erroneous'
+        const res = await api
+            .get(`/api/notes/${id}`)
+            .expect(400)
+
+        expect(res.body.error.msg).toMatch('malformatted id')
+    })
+})
+
+
+describe('delete a note', () => {
+    test('with a valid id associated to existing note', async () => {
+        const notesStart = await notesInDb()
+        const noteToDelete = notesStart[0]
+
+        await api
+            .delete(`/api/notes/${noteToDelete.id}`)
+            .expect(204)
+
+        const notesAfter = await notesInDb()
+        expect(notesAfter).toHaveLength(initialNotes.length - 1)
+
+        const contents = notesAfter.map(n => n.content)
+        expect(contents).not.toContain(noteToDelete.content)
+    })
+
+    test('with a valid id not associated to existing note', async () => {
+        const id = await nonExistingId()
+        await api
+            .delete(`/api/notes/${id}`)
+            .expect(204)
+    })
+
+    test('with an invalid id', async () => {
+        const id = 'erroneous'
+        const res = await api
+            .delete(`/api/notes/${id}`)
+            .expect(400)
+
+        expect(res.body.error.msg).toMatch('malformatted id')
+    })
+})
+
+describe('update a note', () => {
+    test('with a valid id associated to existing note', async () => {
+        const notesStart = await notesInDb()
+        const noteToUpdate = notesStart[0]
+        const updatedNote = {
+            content: 'this is an updated note using PUT',
+        }
+
+        await api
+            .put(`/api/notes/${noteToUpdate.id}`)
+            .send(updatedNote)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        const notesAfter = await notesInDb()
+        // get note we just updated
+        const { content } = notesAfter.find(n => n.id === noteToUpdate.id)
+        // check updated content not old content
+        expect(content).toContain(updatedNote.content)
+    })
+
+    test('with a valid id not associated to existing note', async () => {
+        const id = await nonExistingId()
+        await api
+            .put(`/api/notes/${id}`)
+            .expect(404)
+    })
+
+    test('with an invalid id', async () => {
+        const id = 'erroneous'
+        const res = await api
+            .put(`/api/notes/${id}`)
+            .expect(400)
+
+        expect(res.body.error.msg).toMatch('malformatted id')
     })
 })
 

@@ -16,10 +16,10 @@ const initialNotes = [
 
 const nonExistingId = async () => {
     const note = new Note({ content: 'willremovethissoon', date: new Date() })
-    await note.save()
+    const savedNote = await note.save()
     await note.remove()
 
-    return note._id.toString()
+    return savedNote._id.toString()
 }
 
 const notesInDb = async () => {
