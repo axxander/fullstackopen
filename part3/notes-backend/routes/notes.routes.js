@@ -51,14 +51,16 @@ router.put('/:id', async (req, res, next) => {
     const body = req.body
     const note = {
         content: body.content,
-        important: body.important,
+    }
+    if (body.important) {
+        note.important = body.important
     }
 
     const id = req.params.id
     try {
         // new: true option: passes updated document to event handler not original
         const updatedNote = await Note.findByIdAndUpdate(id, note, { new: true })
-        return res.json(updatedNote)
+        return updatedNote ? res.json(updatedNote) : next(new NotFoundError())
     } catch {
         // assume bad request not internal error
         return next(new BadRequestError('malformatted id'))
