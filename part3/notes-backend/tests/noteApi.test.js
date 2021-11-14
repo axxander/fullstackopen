@@ -11,37 +11,38 @@ const api = supertest(server())
 
 beforeEach(async () => {
     await Note.deleteMany({})
-
-    const noteObjects = initialNotes.map(note => new Note(note))
-    const promiseArray = noteObjects.map(note => note.save())
-    await Promise.all(promiseArray)
+    await Note.insertMany(initialNotes)
 })
 
-test('notes are returned as json', async () => {
-    await api
-        .get('/api/notes')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-}, 1000 * 20)
+describe('when there are initially some saved notes', () => {
+    test('notes are returned as JSON', async () => {
+        await api
+            .get('/api/notes')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+    })
 
-test('all notes are returned', async () => {
-    const response = await api.get('/api/notes')
+    test('all notes are returned', async () => {
+        const res = await api
+            .get('/api/notes')
+            .expect(200)
 
-    expect(response.body).toHaveLength(initialNotes.length)
+        const body = res.body
+        expect(body).toHaveLength(initialNotes.length)
+    })
+
+    test('a specific note is within the returned notes', async () => {
+        const res = await api
+            .get('/api/notes')
+
+        const contents = res.body.map(n => n.content)
+        expect(contents).toContain('Browser can execute only Javascript')
+    })
 })
 
-test('a specific note is within returned notes', async () => {
-    const response = await api.get('/api/notes')
 
-    const contents = response.body.map(r => r.content)
-    expect(contents).toContain(
-        'Browser can execute only Javascript'
-    )
-})
-
-
-describe('add new note', () => {
-    test('with valid contents field', async () => {
+describe('addition of new note', () => {
+    test('succeeds with valid contents field', async () => {
         const newNote = {
             content: 'An example note',
             important: true,
@@ -60,7 +61,7 @@ describe('add new note', () => {
         expect(contents).toContain('An example note')
     })
 
-    test('with invalid contents field', async () => {
+    test('fails with 400 with invalid contents field', async () => {
         const newNote = {
             important: true,
         }
@@ -74,8 +75,8 @@ describe('add new note', () => {
     })
 })
 
-describe('get a note', () => {
-    test('with a valid id associated to an existing note', async () => {
+describe('viewing a specific note', () => {
+    test('succeeds with a valid id', async () => {
         const notesStart = await notesInDb()
         const noteToView = notesStart[0]
 
@@ -88,14 +89,14 @@ describe('get a note', () => {
         expect(note.body).toEqual(processedNoteToView)
     })
 
-    test('with a valid id not associated with an existing note', async () => {
+    test('fails with 404 if note does not exist', async () => {
         const id = await nonExistingId()
         await api
             .get(`/api/notes/${id}`)
             .expect(404)
     })
 
-    test('with an invalid id', async () => {
+    test('fails with 400 if id is invalid', async () => {
         const id = 'erroneous'
         const res = await api
             .get(`/api/notes/${id}`)
@@ -106,8 +107,8 @@ describe('get a note', () => {
 })
 
 
-describe('delete a note', () => {
-    test('with a valid id associated to existing note', async () => {
+describe('deletion of a note', () => {
+    test('succeeds with 204 if id is valid', async () => {
         const notesStart = await notesInDb()
         const noteToDelete = notesStart[0]
 
@@ -122,14 +123,14 @@ describe('delete a note', () => {
         expect(contents).not.toContain(noteToDelete.content)
     })
 
-    test('with a valid id not associated to existing note', async () => {
+    test('succeeds with 204 if does not exist (idempotent)', async () => {
         const id = await nonExistingId()
         await api
             .delete(`/api/notes/${id}`)
             .expect(204)
     })
 
-    test('with an invalid id', async () => {
+    test('fails with 400 if id is invalid', async () => {
         const id = 'erroneous'
         const res = await api
             .delete(`/api/notes/${id}`)
@@ -139,8 +140,8 @@ describe('delete a note', () => {
     })
 })
 
-describe('update a note', () => {
-    test('with a valid id associated to existing note', async () => {
+describe('updating a note', () => {
+    test('succeeds with valid body', async () => {
         const notesStart = await notesInDb()
         const noteToUpdate = notesStart[0]
         const updatedNote = {
@@ -160,14 +161,14 @@ describe('update a note', () => {
         expect(content).toContain(updatedNote.content)
     })
 
-    test('with a valid id not associated to existing note', async () => {
+    test('fails with 404 if note does not exist', async () => {
         const id = await nonExistingId()
         await api
             .put(`/api/notes/${id}`)
             .expect(404)
     })
 
-    test('with an invalid id', async () => {
+    test('fails with 400 if invalid id', async () => {
         const id = 'erroneous'
         const res = await api
             .put(`/api/notes/${id}`)
