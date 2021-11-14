@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 
-const { blogsInDb, initialBlogs } = require('./helpers')
+const { blogsInDb, initialBlogs, nonExistingId } = require('./helpers')
 const Blog = require('../models/blog.model')
 const server = require('../utils/server.utils')
 
@@ -23,8 +23,41 @@ test('blog object contains identification attribute called id', async () => {
     expect(res.body[0].id).toBeDefined()
 })
 
-describe('add new blog', () => {
-    test('with likes field given', async () => {
+describe('viewing a specific blog', () => {
+    test('succeeds with a valid id', async () => {
+        const blogsStart = await blogsInDb()
+        const blogToView = blogsStart[0]
+
+        const res = await api
+            .get(`/api/blogs/${blogToView.id}`)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        const blog = res.body
+        expect(blog).toEqual(
+            expect.objectContaining(blogToView)
+        )
+    })
+
+    test('fails with 404 if blog does not exist', async () => {
+        const id = await nonExistingId()
+        await api
+            .get(`/api/blogs/${id}`)
+            .expect(404)
+    })
+
+    test('fails with 400 if id is invalid', async () => {
+        const id = 'erroneous'
+        const res = await api
+            .get(`/api/blogs/${id}`)
+            .expect(400)
+
+        expect(res.body.error.msg).toMatch('malformatted id')
+    })
+})
+
+describe('addition of new blog', () => {
+    test('succeeds with valid body', async () => {
         const newBlog = {
             title: 'Blog 3',
             author: 'John Doe',
@@ -44,7 +77,7 @@ describe('add new blog', () => {
         expect(titles).toContain('Blog 3')
     })
 
-    test('with likes field not given', async () => {
+    test('succeeds with valid body and sets likes to 0 if not given', async () => {
         const newBlog = {
             title: 'Blog 3',
             author: 'John Doe',
@@ -63,7 +96,7 @@ describe('add new blog', () => {
         expect(blog.likes).toEqual(0)
     })
 
-    test('with title missing', async () => {
+    test('fails with 400 if title missing', async () => {
         const newBlog = {
             author: 'John Doe',
             url: 'http://example.com',
@@ -79,7 +112,7 @@ describe('add new blog', () => {
         expect(res.body.error.msg).toMatch('`title` is required')
     })
 
-    test('with url missing', async () => {
+    test('fails with 400 if url missing', async () => {
         const newBlog = {
             title: 'Blog 3',
             author: 'John Doe',
@@ -93,6 +126,82 @@ describe('add new blog', () => {
         expect(blogsAfter).toHaveLength(initialBlogs.length)
 
         expect(res.body.error.msg).toMatch('`url` is required')
+    })
+})
+
+describe('deletion of blog', () => {
+    test('succeeds with 204 note exists', async () => {
+        const blogsStart = await blogsInDb()
+        const blogToDelete = blogsStart[0]
+
+        const res = await api
+            .delete(`/api/blogs/${blogToDelete.id}`)
+            .expect(204)
+
+        const blogsAfter = await blogsInDb()
+        expect(blogsAfter).toHaveLength(initialBlogs.length - 1)
+
+        // check deleted blog is missing
+        expect(res.body).toEqual(
+            expect.not.arrayContaining([
+                expect.objectContaining(blogToDelete)
+            ])
+        )
+    })
+
+    test('succeeds with 204 if does not exist', async () => {
+        const id = await nonExistingId()
+        await api
+            .delete(`/api/blogs/${id}`)
+            .expect(204)
+    })
+
+    test('fails with 400 if id is invalid', async () => {
+        const id = 'erroneous'
+        const res = await api
+            .delete(`/api/blogs/${id}`)
+            .expect(400)
+
+        expect(res.body.error.msg).toMatch('malformatted id')
+    })
+})
+
+describe('update likes field of blog', () => {
+    test('succeeds if blog exists', async () => {
+        const blogsStart = await blogsInDb()
+        const blogToUpdate = blogsStart[0]
+        const updatedBlogLikes = {
+            ...blogToUpdate,
+            likes: blogToUpdate.likes + 1
+        }
+
+        await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send(updatedBlogLikes)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        const blogsAfter = await blogsInDb()
+        const { likes } = blogsAfter.find(b => b.id === blogToUpdate.id)
+        expect(likes).toEqual(blogToUpdate.likes + 1)
+    })
+
+    test('fails with 404 if blog does not exist', async () => {
+        const id = await nonExistingId()
+        await api
+            .put(`/api/blogs/${id}`)
+            .send({})
+            .expect(404)
+    })
+
+    test('fails with 400 if invalid id', async () => {
+        const id = 'erroneous'
+        const res = await api
+            .put(`/api/blogs/${id}`)
+            .send({})
+            .expect(400)
+
+        expect(res.body.error.msg).toMatch('malformatted id')
     })
 })
 
