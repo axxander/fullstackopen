@@ -26,9 +26,30 @@ class InternalError extends ApiError {
     }
 }
 
+class ConflictError extends ApiError {
+    constructor(msg = 'Conflict') {
+        super(409, msg)
+    }
+}
+
+class UnauthorizedError extends ApiError {
+    constructor(msg = 'Unauthorized') {
+        super(401, msg)
+    }
+}
+
+class ForbiddenError extends ApiError {
+    constructor(msg = 'Forbidden') {
+        super(403, msg)
+    }
+}
+
 module.exports = {
     ApiError,
     BadRequestError,
     NotFoundError,
-    InternalError
+    InternalError,
+    ConflictError,
+    UnauthorizedError,
+    ForbiddenError,
 }
