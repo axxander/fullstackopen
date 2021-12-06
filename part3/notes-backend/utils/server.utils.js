@@ -6,6 +6,7 @@ const errorHandler = require('../middleware/errors.middleware')
 const { NotFoundError } = require('./errors.utils')
 const requestLogger = require('../middleware/requestLogger.middleware')
 const apiRoutes = require('../routes/index')
+const { deserializeUser } = require('../middleware/sessions.middleware')
 
 const server = () => {
     connect()
@@ -17,6 +18,7 @@ const server = () => {
     app.use(cors())
     app.use(express.json())
     app.use(requestLogger)
+    app.use(deserializeUser)
 
     // get routes
     app.use('/api', apiRoutes)
