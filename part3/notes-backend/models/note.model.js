@@ -12,7 +12,13 @@ const noteSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    important: Boolean
+    important: {
+        type: Boolean,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
 })
 
 // Remove __v field and rename _id to id
